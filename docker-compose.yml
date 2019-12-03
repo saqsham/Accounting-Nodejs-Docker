@@ -1,0 +1,41 @@
+version: '3'
+
+services: 
+  # database
+  database:
+    image: mongo:3.6.8
+    volumes: 
+      - ./mongo-data:/data/db
+    expose:
+      - "27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+
+  # app
+  app:
+    image: app
+    build: ./app-main
+    volumes: 
+      - ./app-main:/src
+    restart: always
+    depends_on: 
+      - database
+    environment:
+      - mongodb://127.0.0.1:27017/accountingnode1
+    ports:
+      - "3000:3000"
+  
+  # proxy
+  proxy:
+    image: nginx
+    volumes: 
+      - ./app-main/nginx.conf:/etc/nginx/conf.d/proxy.conf
+    restart: always
+    ports: 
+      - "80:80"
+      - "443:443"
+    depends_on: 
+      - database
+      - app
