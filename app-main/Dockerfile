@@ -12,8 +12,8 @@ ENV NODE_ENV="development"
 
 COPY . ./
 
-RUN npm install --quiet
-RUN npm audit fix
+CMD ["npm","install","--quiet"]
+# RUN npm audit fix --quiet
 
 CMD ["npm", "start"]
 
