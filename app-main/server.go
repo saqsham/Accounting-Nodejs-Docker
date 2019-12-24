@@ -26,7 +26,7 @@ func dbConn() (db *sql.DB) {
     dbUser := "saqsham"
     dbPass := "1234"
     dbName := "golang"
-    db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
+    db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@tcp(database.dev:3306)/"+dbName)
     if err != nil {
         panic(err.Error())
     }
@@ -161,5 +161,7 @@ func main() {
 	err := http.ListenAndServe(":3000", nil) // port setup
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
+	} else {
+		fmt.Println("Server listening on Port: 3000")
 	}
 }

@@ -1,51 +1,65 @@
-version: '3'
+version: '3.6'
 
 services: 
-
   # database
-  database:
-    image: mongo:4.2
-    volumes: 
-      - ./mongo-data:/data/db
-    expose:
-      - "27017"
-    # environment:
-    #   MONGO_INITDB_ROOT_USERNAME: root
-    #   MONGO_INITDB_ROOT_PASSWORD: example
+  db:
+    image: db
+    build: 
+      context: .
+      dockerfile: docker/db/Dockerfile
+    restart: always
+    # command: --init-file /data/application/init.sql
+    volumes:
+      # - ./init.sql:/data/application/init.sql
+      - ./mysql_init:/docker-entrypoint-initdb.d
+    environment:
+      - "MYSQL_DATABASE=golang"
+      - "MYSQL_USER=saqsham"
+      - "MYSQL_PASSWORD=1234"
+      - "MYSQL_ROOT_PASSWORD=1234"
+    ports:
+      - "3306:3306"
+    container_name: database.dev
+    security_opt:
+      - seccomp:unconfined
+    networks:
+      - mynetwork
 
   # app
-  app:
+  go-app:
     image: app
-    build: ./app-main
+    build: 
+      context: .
+      dockerfile: docker/app/Dockerfile
     volumes: 
-      - ./app-main:/src
-      - /src/node_modules
+      - ./app-main:/go/src/app
     restart: always
-    depends_on: 
-      - database
-    environment:
-      - mongodb://127.0.0.1:27017/accountingnode
+    container_name: app.dev
+    working_dir: /go/src/app
+    command: go run server.go
+    # command: ["./wait-for-it", "mysql:3306", "--", "go", "run", "server.go"]
+    depends_on:
+      - db
+    links: 
+      - db
     ports:
       - "3000:3000"
-  
-  # proxy
-  proxy:
-    image: nginx
-    volumes: 
-      - ./app-main/nginx.conf:/etc/nginx/conf.d/proxy.conf
-    restart: always
-    ports: 
-      - "80:80"
-      - "443:443"
-    links: 
-      - app
+    networks:
+      - mynetwork
 
-  # using haproxy load balancer
-  # lbapp:
-  #   image: dockercloud/haproxy
-  #   links:
-  #     - app
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #   ports:
-  #     - "8000:80"
+# network
+networks: 
+  mynetwork:
+    driver: bridge
+
+  # proxy
+  # proxy:
+  #   image: nginx
+  #   volumes: 
+  #     - ./app-main/nginx.conf:/etc/nginx/conf.d/proxy.conf
+  #   restart: always
+  #   ports: 
+  #     - "80:80"
+  #     - "443:443"
+  #   depends_on: 
+  #     - go-app
