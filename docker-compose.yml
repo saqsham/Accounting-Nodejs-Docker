@@ -21,7 +21,7 @@ services:
       - "3306:3306"
     container_name: database.dev
     security_opt:
-      - seccomp:unconfined
+      - seccomp:unconfined # not safe
     networks:
       - mynetwork
 
@@ -40,8 +40,6 @@ services:
     # command: ["./wait-for-it", "mysql:3306", "--", "go", "run", "server.go"]
     depends_on:
       - db
-    links: 
-      - db
     ports:
       - "3000:3000"
     networks:
@@ -53,13 +51,14 @@ networks:
     driver: bridge
 
   # proxy
-  # proxy:
-  #   image: nginx
-  #   volumes: 
-  #     - ./app-main/nginx.conf:/etc/nginx/conf.d/proxy.conf
-  #   restart: always
-  #   ports: 
-  #     - "80:80"
-  #     - "443:443"
-  #   depends_on: 
-  #     - go-app
+  proxy:
+    image: nginx
+    container_name: proxy.dev
+    volumes: 
+      - ./app-main/nginx.conf:/etc/nginx/conf.d/proxy.conf
+    restart: always
+    ports: 
+      - "80:80"
+      - "443:443"
+    depends_on: 
+      - go-app
