@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
+	// "log"
 	"net/http"
+	"os"
 	// "strings"
 	"crypto/md5"
+	"net"
 	"time"
 	"io"
 	"strconv"
@@ -152,16 +154,26 @@ func login(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	port := os.Getenv("PORT")
 	fs := http.FileServer(http.Dir("static"))
   	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/", sayhelloname)
 	http.HandleFunc("/signup", signup)
 	http.HandleFunc("/login", login)
 	// http.HandleFunc(".*.[js|css]", assets) // static files 
-	err := http.ListenAndServe(":3000", nil) // port setup
+	listener, err := net.Listen("tcp", port)
 	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
-	} else {
-		fmt.Println("Server listening on Port: 3000")
+	    panic(err)
 	}
+
+	fmt.Println("Using port:", listener.Addr().(*net.TCPAddr).Port)
+
+	panic(http.Serve(listener, nil))
+	
+	// err := http.ListenAndServe(":3000", nil) // port setup
+	// if err != nil {
+	// 	log.Fatal("ListenAndServe: ", err)
+	// } else {
+	// 	fmt.Println("Server listening on Port: %v", port)
+	// }
 }

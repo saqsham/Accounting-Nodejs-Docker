@@ -10,6 +10,7 @@ services:
     restart: always
     # command: --init-file /data/application/init.sql
     volumes:
+      # - ./init.sql:/data/application/init.sql
       - ./mysql_init:/docker-entrypoint-initdb.d
     environment:
       - "MYSQL_DATABASE=golang"
@@ -25,56 +26,41 @@ services:
       - mynetwork
 
   # golang web app
-  app1:
+  app:
     image: app
-    container_name: app1.dev
     build: 
       context: .
       dockerfile: docker/app/Dockerfile
+    volumes: 
+      - ./app-main:/go/src/app
     restart: always
+    # container_name: app.dev
+    working_dir: /go/src/app
+    command: go run server.go
     depends_on:
       - db
     ports:
-      - 127.0.0.1:3000:3000
-    environment:
-      - PORT=:3000
-    networks:
-      - mynetwork
-
-  app2:
-    image: app
-    container_name: app2.dev
-    build: 
-      context: .
-      dockerfile: docker/app/Dockerfile
-    restart: always
-    depends_on:
-      - db
-    ports:
-      - 127.0.0.1:3010:3010
-    environment:
-      - PORT=:3010
+      - "3000:3000"
     networks:
       - mynetwork
 
   # nginx proxy
-  proxy:
-    image: proxy
-    build: 
-      context: .
-      dockerfile: docker/nginx/Dockerfile
-    container_name: proxy.dev
-    # volumes: 
-    #   - ./app-main/nginx.conf:/etc/nginx/conf.d/proxy.conf
-    restart: always
-    ports: 
-      - 127.0.0.1:3030:3030
-      # - "443:443"
-    depends_on: 
-      - app1
-      - app2
-    networks:
-      - mynetwork
+  # proxy:
+  #   image: proxy
+  #   build: 
+  #     context: .
+  #     dockerfile: docker/nginx/Dockerfile
+  #   container_name: proxy.dev
+  #   # volumes: 
+  #   #   - ./app-main/nginx.conf:/etc/nginx/conf.d/proxy.conf
+  #   restart: always
+  #   ports: 
+  #     - "80:80"
+  #     # - "443:443"
+  #   depends_on: 
+  #     - app
+  #   networks:
+  #     - mynetwork
 
 # network
 networks: 
