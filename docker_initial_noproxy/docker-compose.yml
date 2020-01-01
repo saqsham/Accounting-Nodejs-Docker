@@ -10,7 +10,6 @@ services:
     restart: always
     # command: --init-file /data/application/init.sql
     volumes:
-      # - ./init.sql:/data/application/init.sql
       - ./mysql_init:/docker-entrypoint-initdb.d
     environment:
       - "MYSQL_DATABASE=golang"
@@ -32,7 +31,7 @@ services:
       context: .
       dockerfile: docker/app/Dockerfile
     volumes: 
-      - ./app-main:/go/src/app
+      - ../app-main:/go/src/app
     restart: always
     # container_name: app.dev
     working_dir: /go/src/app
@@ -40,27 +39,11 @@ services:
     depends_on:
       - db
     ports:
-      - "3000:3000"
+      - 127.0.0.1:3000:3000
+    environment:
+      - PORT=:3000
     networks:
       - mynetwork
-
-  # nginx proxy
-  # proxy:
-  #   image: proxy
-  #   build: 
-  #     context: .
-  #     dockerfile: docker/nginx/Dockerfile
-  #   container_name: proxy.dev
-  #   # volumes: 
-  #   #   - ./app-main/nginx.conf:/etc/nginx/conf.d/proxy.conf
-  #   restart: always
-  #   ports: 
-  #     - "80:80"
-  #     # - "443:443"
-  #   depends_on: 
-  #     - app
-  #   networks:
-  #     - mynetwork
 
 # network
 networks: 
