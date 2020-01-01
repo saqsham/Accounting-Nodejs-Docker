@@ -10,7 +10,7 @@ services:
     restart: always
     # command: --init-file /data/application/init.sql
     volumes:
-      - ./mysql_init:/docker-entrypoint-initdb.d
+      - ../mysql_init:/docker-entrypoint-initdb.d
     environment:
       - "MYSQL_DATABASE=golang"
       - "MYSQL_USER=saqsham"
