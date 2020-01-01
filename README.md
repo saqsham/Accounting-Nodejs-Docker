@@ -1,10 +1,8 @@
 # Accounting-Nodejs-Docker
 
 Project underway <br>
->> hmm<br>
+> hmm <br>
 <br>
-
-next commit: undefined
 
 <br> some docker commands
 <br> docker-compose down -v
