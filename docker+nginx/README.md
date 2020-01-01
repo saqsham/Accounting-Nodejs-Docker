@@ -1,4 +1,4 @@
-<h2> Docker golang mysql nginx (proxy and load balancer) <h2>
+<h2> Docker golang mysql nginx (proxy and load balancer) </h2>
 
 <br> 
 <br> docker-compose down -v
