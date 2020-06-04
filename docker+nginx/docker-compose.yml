@@ -2,8 +2,8 @@ version: '3.6'
 
 services: 
   # mysql database
-  db:
-    image: db
+  database:
+    image: database
     build: 
       context: .
       dockerfile: docker/db/Dockerfile
@@ -17,25 +17,36 @@ services:
       - "MYSQL_PASSWORD=1234"
       - "MYSQL_ROOT_PASSWORD=1234"
     ports:
-      - "3306:3306"
-    container_name: database.dev
+      - 3306:3306
+    container_name: databaseGo
     security_opt:
       - seccomp:unconfined # not safe
     networks:
       - mynetwork
 
+  adminer:
+    image: adminer:4.7
+    restart: always
+    container_name: adminer_mysql
+    ports:
+      - 8080:8080
+    depends_on:
+      - database
+    environment:
+      PMA_HOST: database
+
   # golang web app
   app1:
     image: app
-    container_name: app1.dev
+    container_name: app1
     build: 
       context: .
       dockerfile: docker/app/Dockerfile
     restart: always
     depends_on:
-      - db
+      - database
     ports:
-      - 127.0.0.1:3000:3000
+      - 3000:3000
     environment:
       - PORT=:3000
     networks:
@@ -43,15 +54,15 @@ services:
 
   app2:
     image: app
-    container_name: app2.dev
+    container_name: app2
     build: 
       context: .
       dockerfile: docker/app/Dockerfile
     restart: always
     depends_on:
-      - db
+      - database
     ports:
-      - 127.0.0.1:3010:3010
+      - 3010:3010
     environment:
       - PORT=:3010
     networks:
@@ -63,12 +74,12 @@ services:
     build: 
       context: .
       dockerfile: docker/nginx/Dockerfile
-    container_name: proxy.dev
+    container_name: proxy
     # volumes: 
     #   - ./app-main/nginx.conf:/etc/nginx/conf.d/proxy.conf
     restart: always
     ports: 
-      - 127.0.0.1:3030:3030
+      - 3030:3030
       # - "443:443"
     depends_on: 
       - app1
