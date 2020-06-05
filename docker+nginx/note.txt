@@ -2,5 +2,6 @@
 
 <br> 
 <br> docker-compose down -v
-<br> docker-compose up --build --scale app=2
+<br> docker-compose up --build
 <br> exposes on port 3030
+<br> docker ps -a

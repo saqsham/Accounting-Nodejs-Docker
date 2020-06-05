@@ -32,8 +32,10 @@ services:
       - 8080:8080
     depends_on:
       - database
-    environment:
-      PMA_HOST: database
+    networks:
+     - mynetwork
+    # environment:
+    #   PMA_HOST: database
 
   # golang web app
   app1:
